@@ -5,3 +5,5 @@ settings.py
 enb/
 .DS_Store
 __pycache__/
+.env
+env/
