@@ -1,10 +1,8 @@
-import logging
 from glob import glob
+import ephem, requests, settings, logging, datetime
 from emoji import emojize
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-import settings
 from random import randint, choice
-import requests
 
 
 logging.basicConfig(filename='bot.log', level=logging.INFO)
@@ -50,6 +48,19 @@ def get_weather(update, context):
 		update.message.reply_text(f"Weather in {city}: {weather['temp_C']}, feels like {weather['FeelsLikeC']} {smile}")
 	else:
 		return update.message.reply_text('Weather service is temporary unavailable')
+
+def words_count(update, context):
+	smile = context.user_data['emoji'] = get_smile(context.user_data)
+	words = context.args
+	words_count = len(words)
+	update.message.reply_text(f'Your text has {words_count} words {smile}')
+
+def next_full_moon(update, context):
+	today = datetime.datetime.now()
+	next_full_moon = ephem.next_full_moon(today).datetime().strftime('%b %d, %Y at %H:%M:%S')
+	update.message.reply_text(f'Next full moon will be on {next_full_moon}')
+	print(type(ephem.next_full_moon(today)))
+
 
 
 
@@ -143,6 +154,8 @@ def main():
 	dp.add_handler(CommandHandler('guess', guess_number))
 	dp.add_handler(CommandHandler('cat', send_cat_picture))
 	dp.add_handler(CommandHandler('weather', get_weather))
+	dp.add_handler(CommandHandler('wordscount', words_count))
+	dp.add_handler(CommandHandler('next_full_moon', next_full_moon))
 	dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
 

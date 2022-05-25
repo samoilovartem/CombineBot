@@ -1,6 +1,6 @@
 APScheduler==3.6.3
 cachetools==4.2.2
-certifi==2022.5.18.1
+certifi~=2021.10.8
 charset-normalizer==2.0.12
 emoji==1.7.0
 idna==3.3
@@ -14,3 +14,7 @@ tornado==6.1
 tzdata==2022.1
 tzlocal==4.2
 urllib3==1.26.9
+pip~=22.1.1
+wheel~=0.36.2
+setuptools~=57.0.0
+ephem~=4.1.3
