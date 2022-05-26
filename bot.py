@@ -61,6 +61,35 @@ def next_full_moon(update, context):
 	update.message.reply_text(f'Next full moon will be on {next_full_moon}')
 	print(type(ephem.next_full_moon(today)))
 
+def calculator(update, context):
+	user_context = context.args
+	if user_context != []:
+		user_input = user_context[0]
+		if '-' in user_input:
+			user_input = list(map(int, user_input.split('-')))
+			result = user_input[0] - user_input[1]
+			update.message.reply_text(result)
+		elif '+' in user_input:
+			user_input = list(map(int, user_input.split('+')))
+			result = user_input[0] + user_input[1]
+			update.message.reply_text(result)
+		elif '*' in user_input:
+			user_input = list(map(int, user_input.split('*')))
+			result = user_input[0] * user_input[1]
+			update.message.reply_text(result)
+		elif '/' in user_input:
+			try:
+				user_input = list(map(int, user_input.split('/')))
+				result = user_input[0] / user_input[1]
+				update.message.reply_text(result)
+			except ZeroDivisionError:
+				update.message.reply_text('You can`t divide by zero, illiterate!')
+	else:
+		update.message.reply_text('Please follow the format: \n/calc 2*3\n/calc 10-3 \netc')
+
+
+
+
 
 
 
@@ -156,6 +185,7 @@ def main():
 	dp.add_handler(CommandHandler('weather', get_weather))
 	dp.add_handler(CommandHandler('wordscount', words_count))
 	dp.add_handler(CommandHandler('next_full_moon', next_full_moon))
+	dp.add_handler(CommandHandler('calc', calculator))
 	dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
 
