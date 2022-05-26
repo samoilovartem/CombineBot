@@ -9,20 +9,17 @@ logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 
 # ************** BOT FUNCTIONS *************** #
+
 def greet_user(update, context):
-	print(update)
-	smile = context.user_data['emoji'] = get_smile(context.user_data)
-	update.message.reply_text(f'Hello User! {smile}')
+	update.message.reply_text(f'Hello User! {get_smile(context.user_data)}')
+
 
 def talk_to_me(update, context):
 	text = update.message.text
-	print(text)
-	smile = context.user_data['emoji'] = get_smile(context.user_data)
-	update.message.reply_text(f"{text} {smile}")
+	update.message.reply_text(f"{text} {get_smile(context.user_data)}")
+
 
 def guess_number(update, context):
-	smile = context.user_data['emoji'] = get_smile(context.user_data)
-	print(context.args)
 	if context.args:
 		try:
 			user_number = int(context.args[0])
@@ -31,7 +28,8 @@ def guess_number(update, context):
 			message = 'Enter a whole number please'
 	else:
 		message = 'Enter a number please'
-	update.message.reply_text(f'{message} {smile}')
+	update.message.reply_text(f'{message} {get_smile(context.user_data)}')
+
 
 def send_cat_picture(update, context):
 	cat_photo_list = glob('images/cat_*.jp*g')
@@ -39,31 +37,31 @@ def send_cat_picture(update, context):
 	chat_id = update.effective_chat.id
 	context.bot.send_photo(chat_id=chat_id, photo=open(cat_photo_filename, 'rb'))
 
+
 def get_weather(update, context):
-	smile = context.user_data['emoji'] = get_smile(context.user_data)
-	print(context.args)
 	city = context.args[0]
-	weather = weather_by_city(city)
+	weather = get_weather_by_city(city)
 	if weather:
-		update.message.reply_text(f"Weather in {city}: {weather['temp_C']}, feels like {weather['FeelsLikeC']} {smile}")
+		update.message.reply_text(f"Weather in {city}: {weather['temp_C']}, feels like {weather['FeelsLikeC']} {get_smile(context.user_data)}")
 	else:
 		return update.message.reply_text('Weather service is temporary unavailable')
 
+
 def words_count(update, context):
-	smile = context.user_data['emoji'] = get_smile(context.user_data)
 	words = context.args
 	words_count = len(words)
-	update.message.reply_text(f'Your text has {words_count} words {smile}')
+	update.message.reply_text(f'Your text has {words_count} words {get_smile(context.user_data)}')
+
 
 def next_full_moon(update, context):
 	today = datetime.datetime.now()
 	next_full_moon = ephem.next_full_moon(today).datetime().strftime('%b %d, %Y at %H:%M:%S')
 	update.message.reply_text(f'Next full moon will be on {next_full_moon}')
-	print(type(ephem.next_full_moon(today)))
+
 
 def calculator(update, context):
 	user_context = context.args
-	if user_context != []:
+	if user_context:
 		user_input = user_context[0]
 		if '-' in user_input:
 			user_input = list(map(int, user_input.split('-')))
@@ -89,10 +87,6 @@ def calculator(update, context):
 
 
 
-
-
-
-
 # ************* ADDITIONAL FUNCTIONS ************** #
 
 def play_random_numbers(user_number):
@@ -105,6 +99,7 @@ def play_random_numbers(user_number):
 		message = f'Your number is {user_number}, mine is {bot_number}, You lost!'
 	return message
 
+
 def get_smile(user_data):
 	if 'emoji' not in user_data:
 		smile = choice(settings.USER_EMOJI)
@@ -112,7 +107,7 @@ def get_smile(user_data):
 	return user_data['emoji']
 
 
-def weather_by_city(city_name):
+def get_weather_by_city(city_name):
     weather_url = 'http://api.worldweatheronline.com/premium/v1/weather.ashx'
     params = {
         'key': settings.WEATHER_KEY,
@@ -129,6 +124,7 @@ def weather_by_city(city_name):
             except(IndexError, TypeError):
                 return False
     return False
+
 
 # def rock_paper_scissors():
 # 	while True:
@@ -175,6 +171,7 @@ def weather_by_city(city_name):
 # 			break
 # 	print('Bye!')
 
+
 def main():
 	mybot = Updater(settings.API_KEY, use_context=True)
 
@@ -187,7 +184,6 @@ def main():
 	dp.add_handler(CommandHandler('next_full_moon', next_full_moon))
 	dp.add_handler(CommandHandler('calc', calculator))
 	dp.add_handler(MessageHandler(Filters.text, talk_to_me))
-
 
 	logging.info('The bot has started')
 	mybot.start_polling()
