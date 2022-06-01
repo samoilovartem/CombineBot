@@ -7,3 +7,4 @@ enb/
 __pycache__/
 .env
 env/
+downloads/

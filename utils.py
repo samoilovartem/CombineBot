@@ -2,10 +2,18 @@ import requests, settings
 from emoji import emojize
 from random import randint, choice
 from telegram import ReplyKeyboardMarkup, KeyboardButton
+from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
+from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
+from clarifai_grpc.grpc.api.status import status_pb2, status_code_pb2
 
 
 def main_keyboard():
-    return ReplyKeyboardMarkup([['Send a cat', KeyboardButton('Send my location', request_location=True)]])
+    return ReplyKeyboardMarkup(
+        [
+            ['Send a cat', KeyboardButton('Send my location', request_location=True)],
+            ['Fill out the form'],
+        ]
+    )
 
 
 def play_random_numbers(user_number):
@@ -43,3 +51,40 @@ def get_weather_by_city(city_name):
             except(IndexError, TypeError):
                 return False
     return False
+
+
+def has_object(filename, object_name):
+    channel = ClarifaiChannel.get_grpc_channel()
+    app = service_pb2_grpc.V2Stub(channel)
+    metadata = (('authorization', f'Key {settings.CLARIFAI_API_KEY}'),)
+
+    with open(filename, 'rb') as file:
+        file_data = file.read()
+        image = resources_pb2.Image(base64=file_data)
+
+    request = service_pb2.PostModelOutputsRequest(
+        model_id='aaa03c23b3724a16a56b629203edc62c',
+        inputs=[
+            resources_pb2.Input(data=resources_pb2.Data(image=image))
+        ])
+
+    response = app.PostModelOutputs(request, metadata=metadata)
+    return check_response_for_object(response, object_name)
+
+
+def check_response_for_object(response, object_name):
+
+    if response.status.code == status_code_pb2.SUCCESS:
+        for concept in response.outputs[0].data.concepts:
+            if concept.name == object_name and concept.value >= 0.9:
+                return True
+
+    else:
+        print(f'Picture recognition error {response.outputs[0].status.details}')
+
+    return False
+
+
+if __name__ == '__main__':
+    print(has_object('images/cat_1.jpg', 'cat'))
+    print(has_object('images/not_cat.jpg', 'cat'))

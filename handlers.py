@@ -1,6 +1,7 @@
 import ephem, datetime
 from glob import glob
 from utils import *
+import os
 
 
 def greet_user(update, context):
@@ -108,6 +109,22 @@ def get_user_location(update, context):
     )
 
 
+def check_user_photo(update, context):
+    update.message.reply_text('Your photo is processing')
+    os.makedirs('downloads', exist_ok=True)
+    photo_file = context.bot.getFile(update.message.photo[-1].file_id)
+    file_name = os.path.join('downloads', f'{update.message.photo[-1].file_id}.jpg')
+    photo_file.download(file_name)
+    update.message.reply_text('Your file has been saved')
+    if has_object(file_name, 'cat'):
+        update.message.reply_text('Kitty cat has been detected! Saving it into our library :)')
+        new_file_name = os.path.join('images', f'cat_{photo_file.file_id}.jpg')
+        os.rename(file_name, new_file_name)
+    else:
+        os.remove(file_name)
+        update.message.reply_text('Attention! A cat hasn`t been detected')
+
+
 def get_city(update, context):
     username = update.effective_user.first_name
     user_context = context.args
@@ -161,6 +178,7 @@ def get_city(update, context):
 
 
 used_cities = []
+
 
 cities = [
     'Aberdeen', 'Accra', 'Aden', 'Albany', 'Alexandria', 'Algiers', 'Alberta', 'Amsterdam',

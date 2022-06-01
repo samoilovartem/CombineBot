@@ -13,6 +13,9 @@ CombineBot is a bot for Telegram that I use for learning purposes. Here I add as
 - **Simple calculator** _(works with 2 digits only for now, but maybe in future this bot will be a bit worse than Pythagoras)_
 - **Location** _(you don`t need to use your sextant anymore)_
 - **Word chain game** _(you don`t have any chances to win that beast)_
+- **Bot`s rating form** _(you can tell me if you like it and leave a review)_
+- **Picture`s uploading tool** _(the bot can accept and save pictures that you sent)_
+- **Object`s recognition** _(the bot can recognize a cat on a picture you sent)_
 - **To be continued...**
 
 
@@ -27,5 +30,6 @@ CombineBot is a bot for Telegram that I use for learning purposes. Here I add as
 API_KEY = 'Your telegram bot API key'
 USER_EMOJI = [':smiley_cat:', ':smiling_imp:', ':panda_face:', ':dog:']
 WEATHER_KEY = 'Your weather service api key'
+CLARIFAI_API_KEY = 'Your clarifai API key'
 ```
 6. Start the bot: `python bot.py`
