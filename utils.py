@@ -53,7 +53,7 @@ def get_weather_by_city(city_name):
     return False
 
 
-def has_object(filename, object_name):
+def get_object(filename):
     channel = ClarifaiChannel.get_grpc_channel()
     app = service_pb2_grpc.V2Stub(channel)
     metadata = (('authorization', f'Key {settings.CLARIFAI_API_KEY}'),)
@@ -69,22 +69,22 @@ def has_object(filename, object_name):
         ])
 
     response = app.PostModelOutputs(request, metadata=metadata)
-    return check_response_for_object(response, object_name)
+    return check_response_for_object(response)
 
 
-def check_response_for_object(response, object_name):
-
+def check_response_for_object(response):
+    all_findings = dict()
     if response.status.code == status_code_pb2.SUCCESS:
         for concept in response.outputs[0].data.concepts:
-            if concept.name == object_name and concept.value >= 0.9:
-                return True
+            if concept.value >= 0.97:
+                all_findings[concept.name] = str(round(concept.value * 100, 1))
+        return all_findings
 
     else:
         print(f'Picture recognition error {response.outputs[0].status.details}')
-
-    return False
+        return False
 
 
 if __name__ == '__main__':
-    print(has_object('images/cat_1.jpg', 'cat'))
-    print(has_object('images/not_cat.jpg', 'cat'))
+    print(get_object('images/cat_1.jpg'))
+

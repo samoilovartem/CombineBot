@@ -2,6 +2,7 @@ import ephem, datetime
 from glob import glob
 from utils import *
 import os
+from telegram import ParseMode
 
 
 def greet_user(update, context):
@@ -110,19 +111,26 @@ def get_user_location(update, context):
 
 
 def check_user_photo(update, context):
-    update.message.reply_text('Your photo is processing')
+    username = update.effective_user.first_name
+    update.message.reply_text('Your picture has been received \n'
+                              'Please wait while I`m analyzing it')
     os.makedirs('downloads', exist_ok=True)
     photo_file = context.bot.getFile(update.message.photo[-1].file_id)
     file_name = os.path.join('downloads', f'{update.message.photo[-1].file_id}.jpg')
     photo_file.download(file_name)
-    update.message.reply_text('Your file has been saved')
-    if has_object(file_name, 'cat'):
-        update.message.reply_text('Kitty cat has been detected! Saving it into our library :)')
+    user_dict = get_object(file_name)
+    user_list = []
+    for key, value in user_dict.items():
+        user_list.append(f'<b>Object:</b> {key}, <b>Probability:</b> {value} %')
+    update.message.reply_text(f'Here is what I have found in your picture: ' + '\n'.join(user_list),
+                              parse_mode=ParseMode.HTML)
+    if 'cat' in user_dict:
+        update.message.reply_text(f'Since it`s a cat, I`ll save this picture to my library! '
+                                  f'Thank you, {username} :)')
         new_file_name = os.path.join('images', f'cat_{photo_file.file_id}.jpg')
         os.rename(file_name, new_file_name)
     else:
         os.remove(file_name)
-        update.message.reply_text('Attention! A cat hasn`t been detected')
 
 
 def get_city(update, context):
