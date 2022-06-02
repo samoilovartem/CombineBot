@@ -15,7 +15,7 @@ CombineBot is a bot for Telegram that I use for learning purposes. Here I add as
 - **Word chain game** _(you don`t have any chances to win that beast)_
 - **Bot`s rating form** _(you can tell me if you like it and leave a review)_
 - **Picture`s uploading tool** _(the bot can accept and save pictures that you sent)_
-- **Object`s recognition** _(the bot can recognize a cat on a picture you sent)_
+- **Object`s recognition** _(the bot can tell what objects are in a picture you sent)_
 - **To be continued...**
 
 
