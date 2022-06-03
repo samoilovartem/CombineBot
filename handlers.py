@@ -118,19 +118,19 @@ def check_user_photo(update, context):
     photo_file = context.bot.getFile(update.message.photo[-1].file_id)
     file_name = os.path.join('downloads', f'{update.message.photo[-1].file_id}.jpg')
     photo_file.download(file_name)
-    user_dict = get_object(file_name)
-    user_list = []
-    for key, value in user_dict.items():
-        user_list.append(f'<b>Object:</b> {key}, <b>Probability:</b> {value} %')
-    update.message.reply_text(f'Here is what I have found in your picture: ' + '\n'.join(user_list),
-                              parse_mode=ParseMode.HTML)
-    if 'cat' in user_dict:
-        update.message.reply_text(f'Since it`s a cat, I`ll save this picture to my library! '
-                                  f'Thank you, {username} :)')
-        new_file_name = os.path.join('images', f'cat_{photo_file.file_id}.jpg')
-        os.rename(file_name, new_file_name)
+    user_list = '\n'.join(get_object(file_name)[0:5])
+    if user_list:
+        update.message.reply_text(f'Here is what I have found in your picture: ' + user_list,
+                                  parse_mode=ParseMode.HTML)
+        if 'cat' in user_list:
+            update.message.reply_text(f'Since it`s a cat, I`ll save this picture to my library! '
+                                      f'Thank you, {username} :)')
+            new_file_name = os.path.join('images', f'cat_{photo_file.file_id}.jpg')
+            os.rename(file_name, new_file_name)
+        else:
+            os.remove(file_name)
     else:
-        os.remove(file_name)
+        update.message.reply_text(f'Unfortunately, I`m not sure what objects are in this picture. Sorry, {username}')
 
 
 def get_city(update, context):

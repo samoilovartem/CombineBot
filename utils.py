@@ -73,12 +73,12 @@ def get_object(filename):
 
 
 def check_response_for_object(response):
-    all_findings = dict()
+    user_list = []
     if response.status.code == status_code_pb2.SUCCESS:
         for concept in response.outputs[0].data.concepts:
-            if concept.value >= 0.97:
-                all_findings[concept.name] = str(round(concept.value * 100, 1))
-        return all_findings
+            if concept.value >= 0.80:
+                user_list.append(f'<b>Object:</b> {concept.name}, <b>Probability:</b> {str(round(concept.value * 100, 1))} %')
+        return user_list
 
     else:
         print(f'Picture recognition error {response.outputs[0].status.details}')
