@@ -1,27 +1,32 @@
-import ephem, datetime
+import ephem
+import datetime
 from glob import glob
-from utils import *
+from utils import main_keyboard, play_random_numbers, get_weather_by_city, get_object
+from db import db, get_or_create_user
 import os
 from telegram import ParseMode
+from random import choice
 
 
 def greet_user(update, context):
-    username = update.effective_user.first_name
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
     update.message.reply_text(
-        f'Hello {username}! {get_smile(context.user_data)}',
+        f'Hello, {user["first_name"]}! {user["emoji"]}',
         reply_markup=main_keyboard()
     )
 
 
 def talk_to_me(update, context):
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
     text = update.message.text
     update.message.reply_text(
-        f"{text} {get_smile(context.user_data)}",
+        f'{text} {user["emoji"]}',
         reply_markup=main_keyboard()
     )
 
 
 def guess_number(update, context):
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
     if context.args:
         try:
             user_number = int(context.args[0])
@@ -31,12 +36,13 @@ def guess_number(update, context):
     else:
         message = 'Enter a number please'
     update.message.reply_text(
-        f'{message} {get_smile(context.user_data)}',
+        f'{message} {user["emoji"]}',
         reply_markup=main_keyboard()
     )
 
 
 def send_cat_picture(update, context):
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
     cat_photo_list = glob('images/cat_*.jp*g')
     cat_photo_filename = choice(cat_photo_list)
     chat_id = update.effective_chat.id
@@ -46,12 +52,13 @@ def send_cat_picture(update, context):
 
 
 def get_weather(update, context):
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
     city = context.args[0]
     weather = get_weather_by_city(city)
     if weather:
         update.message.reply_text(
-            f"Weather in {city}: {weather['temp_C']}, "
-            f"feels like {weather['FeelsLikeC']} {get_smile(context.user_data)}",
+            f'Weather in {city}: {weather["temp_C"]}, '
+            f'feels like {weather["FeelsLikeC"]} {user["emoji"]}',
             reply_markup=main_keyboard())
     else:
         return update.message.reply_text('Weather service is temporary unavailable',
@@ -59,13 +66,15 @@ def get_weather(update, context):
 
 
 def words_count(update, context):
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
     words = context.args
     words_count = len(words)
-    update.message.reply_text(f'Your text has {words_count} words {get_smile(context.user_data)}',
+    update.message.reply_text(f'Your text has {words_count} words {user["emoji"]}',
                               reply_markup=main_keyboard())
 
 
 def next_full_moon(update, context):
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
     today = datetime.datetime.now()
     next_full_moon = ephem.next_full_moon(today).datetime().strftime('%b %d, %Y at %H:%M:%S')
     update.message.reply_text(f'Next full moon will be on {next_full_moon}',
@@ -73,6 +82,7 @@ def next_full_moon(update, context):
 
 
 def calculator(update, context):
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
     user_context = context.args
     if user_context:
         user_input = user_context[0]
@@ -102,16 +112,17 @@ def calculator(update, context):
 
 
 def get_user_location(update, context):
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
     coordinates = update.message.location
     update.message.reply_text(
         f'Your coordinates are: \nLatitude - {coordinates["latitude"]} '
-        f'\nLongitude - {coordinates["longitude"]} \n{get_smile(context.user_data)}',
+        f'\nLongitude - {coordinates["longitude"]} \n{user["emoji"]}',
         reply_markup=main_keyboard()
     )
 
 
 def check_user_photo(update, context):
-    username = update.effective_user.first_name
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
     update.message.reply_text('Your picture has been received \n'
                               'Please wait while I`m analyzing it')
     os.makedirs('downloads', exist_ok=True)
@@ -124,16 +135,18 @@ def check_user_photo(update, context):
                                   parse_mode=ParseMode.HTML)
         if 'cat' in user_list:
             update.message.reply_text(f'Since it`s a cat, I`ll save this picture to my library! '
-                                      f'Thank you, {username} :)')
+                                      f'Thank you, {user["username"]} :)')
             new_file_name = os.path.join('images', f'cat_{photo_file.file_id}.jpg')
             os.rename(file_name, new_file_name)
         else:
             os.remove(file_name)
     else:
-        update.message.reply_text(f'Unfortunately, I`m not sure what objects are in this picture. Sorry, {username}')
+        update.message.reply_text(f'Unfortunately, I`m not sure what objects are in this picture. '
+                                  f'Sorry, {user["first_name"]}')
 
 
 def get_city(update, context):
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
     username = update.effective_user.first_name
     user_context = context.args
 
@@ -182,7 +195,6 @@ def get_city(update, context):
 
     else:
         update.message.reply_text('Please follow the format: \n/cities Moscow')
-
 
 
 used_cities = []

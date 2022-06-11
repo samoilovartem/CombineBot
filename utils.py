@@ -1,10 +1,10 @@
-import requests, settings
-from emoji import emojize
-from random import randint, choice
+import requests
+import settings
+from random import randint
 from telegram import ReplyKeyboardMarkup, KeyboardButton
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
-from clarifai_grpc.grpc.api.status import status_pb2, status_code_pb2
+from clarifai_grpc.grpc.api.status import status_code_pb2
 
 
 def main_keyboard():
@@ -25,13 +25,6 @@ def play_random_numbers(user_number):
     else:
         message = f'Your number is {user_number}, mine is {bot_number}, You lost!'
     return message
-
-
-def get_smile(user_data):
-    if 'emoji' not in user_data:
-        smile = choice(settings.USER_EMOJI)
-        return emojize(smile, language='alias')
-    return user_data['emoji']
 
 
 def get_weather_by_city(city_name):
@@ -87,4 +80,3 @@ def check_response_for_object(response):
 
 if __name__ == '__main__':
     print(get_object('images/cat_1.jpg'))
-

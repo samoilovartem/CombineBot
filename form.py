@@ -1,6 +1,7 @@
 from telegram import ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from utils import main_keyboard
 from telegram.ext import ConversationHandler
+from db import db, get_or_create_user, save_form
 
 
 def form_start(update, context):
@@ -33,6 +34,8 @@ def form_rating(update, context):
 
 def form_comment(update, context):
     context.user_data['form']['comment'] = update.message.text
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    save_form(db, user['user_id'], context.user_data['form'])
     user_text = form_format(context.user_data['form'])
     update.message.reply_text(user_text, reply_markup=main_keyboard(),
                               parse_mode=ParseMode.HTML)
@@ -40,6 +43,8 @@ def form_comment(update, context):
 
 
 def form_skip(update, context):
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    save_form(db, user['user_id'], context.user_data['form'])
     user_text = form_format(context.user_data['form'])
     update.message.reply_text(user_text, reply_markup=main_keyboard(),
                               parse_mode=ParseMode.HTML)

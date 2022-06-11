@@ -1,5 +1,6 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 import logging
+import settings
 from handlers import *
 from form import form_start, form_name, form_rating, form_skip, form_comment, form_unknown
 
