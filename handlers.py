@@ -1,15 +1,18 @@
 import ephem
 import datetime
 from glob import glob
-from utils import main_keyboard, play_random_numbers, get_weather_by_city, get_object
-from db import db, get_or_create_user
+from utils import main_keyboard, play_random_numbers, get_weather_by_city, \
+     get_object
+from db import db, get_or_create_user, subscribe_user, unsubscribe_user
 import os
 from telegram import ParseMode
 from random import choice
+from jobs import alarm
 
 
 def greet_user(update, context):
-    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    user = get_or_create_user(db, update.effective_user,
+                              update.message.chat.id)
     update.message.reply_text(
         f'Hello, {user["first_name"]}! {user["emoji"]}',
         reply_markup=main_keyboard()
@@ -17,7 +20,8 @@ def greet_user(update, context):
 
 
 def talk_to_me(update, context):
-    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    user = get_or_create_user(db, update.effective_user,
+                              update.message.chat.id)
     text = update.message.text
     update.message.reply_text(
         f'{text} {user["emoji"]}',
@@ -26,7 +30,8 @@ def talk_to_me(update, context):
 
 
 def guess_number(update, context):
-    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    user = get_or_create_user(db, update.effective_user,
+                              update.message.chat.id)
     if context.args:
         try:
             user_number = int(context.args[0])
@@ -42,7 +47,7 @@ def guess_number(update, context):
 
 
 def send_cat_picture(update, context):
-    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    get_or_create_user(db, update.effective_user, update.message.chat.id)
     cat_photo_list = glob('images/cat_*.jp*g')
     cat_photo_filename = choice(cat_photo_list)
     chat_id = update.effective_chat.id
@@ -52,7 +57,8 @@ def send_cat_picture(update, context):
 
 
 def get_weather(update, context):
-    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    user = get_or_create_user(db, update.effective_user,
+                              update.message.chat.id)
     city = context.args[0]
     weather = get_weather_by_city(city)
     if weather:
@@ -61,28 +67,33 @@ def get_weather(update, context):
             f'feels like {weather["FeelsLikeC"]} {user["emoji"]}',
             reply_markup=main_keyboard())
     else:
-        return update.message.reply_text('Weather service is temporary unavailable',
-                                         reply_markup=main_keyboard())
+        return update.message.reply_text(
+            'Weather service is temporary unavailable',
+            reply_markup=main_keyboard())
 
 
 def words_count(update, context):
-    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    user = get_or_create_user(db, update.effective_user,
+                              update.message.chat.id)
     words = context.args
     words_count = len(words)
-    update.message.reply_text(f'Your text has {words_count} words {user["emoji"]}',
-                              reply_markup=main_keyboard())
+    update.message.reply_text(
+        f'Your text has {words_count} words {user["emoji"]}',
+        reply_markup=main_keyboard())
 
 
 def next_full_moon(update, context):
-    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    get_or_create_user(db, update.effective_user, update.message.chat.id)
     today = datetime.datetime.now()
-    next_full_moon = ephem.next_full_moon(today).datetime().strftime('%b %d, %Y at %H:%M:%S')
+    next_full_moon = ephem.next_full_moon(today).datetime().strftime(
+        '%b %d, %Y at %H:%M:%S'
+        )
     update.message.reply_text(f'Next full moon will be on {next_full_moon}',
                               reply_markup=main_keyboard())
 
 
 def calculator(update, context):
-    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    get_or_create_user(db, update.effective_user, update.message.chat.id)
     user_context = context.args
     if user_context:
         user_input = user_context[0]
@@ -104,15 +115,18 @@ def calculator(update, context):
                 result = user_input[0] / user_input[1]
                 update.message.reply_text(result, reply_markup=main_keyboard())
             except ZeroDivisionError:
-                update.message.reply_text('You can`t divide by zero, illiterate!',
-                                          reply_markup=main_keyboard())
+                update.message.reply_text(
+                    'You can`t divide by zero, illiterate!',
+                    reply_markup=main_keyboard())
     else:
-        update.message.reply_text('Please follow the format: \n/calc 2*3\n/calc 10-3 \netc',
-                                  reply_markup=main_keyboard())
+        update.message.reply_text(
+            'Please follow the format: \n/calc 2*3\n/calc 10-3 \netc',
+            reply_markup=main_keyboard())
 
 
 def get_user_location(update, context):
-    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    user = get_or_create_user(db, update.effective_user,
+                              update.message.chat.id)
     coordinates = update.message.location
     update.message.reply_text(
         f'Your coordinates are: \nLatitude - {coordinates["latitude"]} '
@@ -122,32 +136,62 @@ def get_user_location(update, context):
 
 
 def check_user_photo(update, context):
-    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    user = get_or_create_user(db, update.effective_user,
+                              update.message.chat.id)
     update.message.reply_text('Your picture has been received \n'
                               'Please wait while I`m analyzing it')
     os.makedirs('downloads', exist_ok=True)
     photo_file = context.bot.getFile(update.message.photo[-1].file_id)
-    file_name = os.path.join('downloads', f'{update.message.photo[-1].file_id}.jpg')
+    file_name = os.path.join(
+        'downloads', f'{update.message.photo[-1].file_id}.jpg')
     photo_file.download(file_name)
     user_list = '\n'.join(get_object(file_name)[0:5])
     if user_list:
-        update.message.reply_text(f'Here is what I have found in your picture: ' + user_list,
-                                  parse_mode=ParseMode.HTML)
+        update.message.reply_text(
+            'Here is what I have found in your picture: ' + user_list,
+            parse_mode=ParseMode.HTML)
         if 'cat' in user_list:
-            update.message.reply_text(f'Since it`s a cat, I`ll save this picture to my library! '
-                                      f'Thank you, {user["username"]} :)')
-            new_file_name = os.path.join('images', f'cat_{photo_file.file_id}.jpg')
+            update.message.reply_text(
+                f'Since it`s a cat, I`ll save this picture to my library! '
+                f'Thank you, {user["username"]} :)')
+            new_file_name = os.path.join(
+                'images', f'cat_{photo_file.file_id}.jpg')
             os.rename(file_name, new_file_name)
         else:
             os.remove(file_name)
     else:
-        update.message.reply_text(f'Unfortunately, I`m not sure what objects are in this picture. '
-                                  f'Sorry, {user["first_name"]}')
+        update.message.reply_text(
+            f'Unfortunately, I`m not sure what objects are in this picture. '
+            f'Sorry, {user["first_name"]}')
+
+
+def subscribe(update, context):
+    user = get_or_create_user(db, update.effective_user,
+                              update.message.chat.id)
+    subscribe_user(db, user)
+    update.message.reply_text('You have successfully subscribed')
+
+
+def unsubscribe(update, context):
+    user = get_or_create_user(db, update.effective_user,
+                              update.message.chat.id)
+    unsubscribe_user(db, user)
+    update.message.reply_text('You have successfully unsubscribed')
+
+
+def set_alarm(update, context):
+    try:
+        alarm_seconds = abs(int(context.args[0]))
+        context.job_queue.run_once(alarm, alarm_seconds, context=update.message.chat.id)
+        update.message.reply_text(f'You will get an alarm in {alarm_seconds} seconds')
+    except (ValueError, TypeError):
+        update.message.reply_text(
+            'Enter amount of seconds after the command.\n'
+            'Example: /alarm 100')
 
 
 def get_city(update, context):
-    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
-    username = update.effective_user.first_name
+    get_or_create_user(db, update.effective_user, update.message.chat.id)
     user_context = context.args
 
     if user_context:
@@ -167,31 +211,34 @@ def get_city(update, context):
             context.user_data["used_cities"].append(user_city)
 
             if user_city in bot_cities:
-                suitable_cities = list(filter(lambda x: x.startswith(user_city[-1].upper()), bot_cities))
+                suitable_cities = list(filter(lambda x: x.startswith(
+                    user_city[-1].upper()), bot_cities))
                 if suitable_cities:
                     context.user_data["used_cities"].append(suitable_cities[0])
                     context.user_data["cities"].remove(suitable_cities[0])
                     context.user_data["cities"].remove(user_city)
                     update.message.reply_text(suitable_cities[0])
-                    print(f'{used_cities_list} for {username}')
-                    print(f'{context.user_data["used_cities"]} for {username}')
-
                 else:
                     update.message.reply_text(
-                        f'Unfortunately, I don`t know any city that starts from "{user_city[-1].upper()}". You won!')
+                        f'Unfortunately, I don`t know any city that starts '
+                        f'from "{user_city[-1].upper()}". You won!')
             else:
-                update.message.reply_text('I don`t know that city, but let`s pretend it exists!')
-                suitable_cities = list(filter(lambda x: x.startswith(user_city[-1].upper()), bot_cities))
+                update.message.reply_text(
+                    'I don`t know that city, but let`s pretend it exists!')
+                suitable_cities = list(filter(lambda x: x.startswith(
+                    user_city[-1].upper()), bot_cities))
                 if suitable_cities:
                     update.message.reply_text(suitable_cities[0])
                     context.user_data['cities'].append(suitable_cities[0])
                     context.user_data['used_cities'].append(user_city)
-                    print(used_cities_list)
                 else:
                     update.message.reply_text(
-                        f'Unfortunately, I don`t know any city that starts from "{user_city[-1].upper()}". You won!')
+                        f'Unfortunately, I don`t know any city that starts '
+                        f'from "{user_city[-1].upper()}". You won!')
         else:
-            update.message.reply_text('We have already used that city! Don`t try to trick me, cheater!')
+            update.message.reply_text(
+                'We have already used that city! '
+                'Don`t try to trick me, cheater!')
 
     else:
         update.message.reply_text('Please follow the format: \n/cities Moscow')
@@ -201,21 +248,24 @@ used_cities = []
 
 
 cities = [
-    'Aberdeen', 'Accra', 'Aden', 'Albany', 'Alexandria', 'Algiers', 'Alberta', 'Amsterdam',
-    'Anchorage', 'Ankara', 'Antananarivo', 'Antrim', 'Antwerp', 'Assouan', 'Athens', 'Babylon',
-    'Baghdad', 'Baikonur', 'Barcelona', 'Basel', 'Belgrade', 'Berlin', 'Beijing', 'Bhilai',
-    'Bogota', 'Brazilia', 'Brno', 'Brussels', 'Bucharest', 'Budapest', 'Buenos Aires', 'Bukhara',
-    'Cadiz', 'Cairo', 'Calais', 'Calcutta', 'Cambridge', 'Canberra', 'Caracas', 'Cologne',
-    'Copenhagen', 'Dakar', 'Damascus', 'Davos', 'Delhi', 'Dover', 'Dublin', 'Dushanbe',
-    'Dusseldorf', 'Edinburgh', 'Florence', 'Geneva', 'Glasgow', 'Greenwich', 'Guatemala',
-    'Hague', 'Halifax', 'Hamburg', 'Harare', 'Harbin', 'Havana', 'Helsinki', 'Hiroshima',
-    'Hull', 'Iasi', 'Istanbul', 'Jerusalem', 'Johannesburg', 'Kabul', 'Kyoto', 'Lagos',
-    'Lausanne', 'Leiden', 'Leipzig', 'Lisbon', 'Ljubljana', 'London', 'Lyons', 'Madrid',
-    'Manchester', 'Marseilles', 'Melbourne', 'Monaco', 'Moscow', 'Montreal', 'Munich', 'Naples',
-    'Nice', 'Omaha', 'Orlando', 'Orleans', 'Osaka', 'Oslo', 'Ottawa', 'Padua', 'Phoenix',
-    'Plymouth', 'Portsmouth', 'Prague', 'Pyongyang', 'Quebec', 'Richmond', 'Rome', 'Sachalin',
+    'Aberdeen', 'Accra', 'Aden', 'Albany', 'Alexandria', 'Algiers', 'Alberta',
+    'Amsterdam', 'Anchorage', 'Ankara', 'Antananarivo', 'Antrim', 'Antwerp',
+    'Assouan', 'Athens', 'Babylon', 'Baghdad', 'Baikonur', 'Barcelona',
+    'Basel', 'Belgrade', 'Berlin', 'Beijing', 'Bhilai', 'Bogota', 'Brazilia',
+    'Brno', 'Brussels', 'Bucharest', 'Budapest', 'Buenos Aires', 'Bukhara',
+    'Cadiz', 'Cairo', 'Calais', 'Calcutta', 'Cambridge', 'Canberra', 'Caracas',
+    'Cologne', 'Copenhagen', 'Dakar', 'Damascus', 'Davos', 'Delhi', 'Dover',
+    'Dublin', 'Dushanbe', 'Dusseldorf', 'Edinburgh', 'Florence', 'Geneva',
+    'Glasgow', 'Greenwich', 'Guatemala', 'Hague', 'Halifax', 'Hamburg',
+    'Harare', 'Harbin', 'Havana', 'Helsinki', 'Hiroshima', 'Hull', 'Iasi',
+    'Istanbul', 'Jerusalem', 'Johannesburg', 'Kabul', 'Kyoto', 'Lagos',
+    'Lausanne', 'Leiden', 'Leipzig', 'Lisbon', 'Ljubljana', 'London', 'Lyons',
+    'Madrid', 'Manchester', 'Marseilles', 'Melbourne', 'Monaco', 'Moscow',
+    'Montreal', 'Munich', 'Naples', 'Nice', 'Omaha', 'Orlando', 'Orleans',
+    'Osaka', 'Oslo', 'Ottawa', 'Padua', 'Phoenix', 'Plymouth', 'Portsmouth',
+    'Prague', 'Pyongyang', 'Quebec', 'Richmond', 'Rome', 'Sachalin',
     'Salvador', 'Seoul', 'Seville', 'Shanghai', 'Sicily', 'Sofia', 'Stockholm',
-    'Strasbourg', 'Suez', 'Sydney', 'Syracuse', 'Taipei', 'Toulouse', 'Tunis', 'Valparaiso',
-    'Vancouver', 'Venice', 'Versailles', 'Vienna', 'Vilnuis', 'Warsaw', 'Warwick',
-    'Weimar', 'Zurich',
+    'Strasbourg', 'Suez', 'Sydney', 'Syracuse', 'Taipei', 'Toulouse', 'Tunis',
+    'Valparaiso', 'Vancouver', 'Venice', 'Versailles', 'Vienna', 'Vilnuis',
+    'Warsaw', 'Warwick', 'Weimar', 'Zurich',
 ]

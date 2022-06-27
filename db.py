@@ -39,3 +39,22 @@ def save_form(db, user_id, form_data):
             {'_id': user['_id']},
             {'$push': {'form': form_data}},
         )
+
+
+def subscribe_user(db, user):
+    if not user.get('subscribed'):
+        db.users.update_one(
+            {'_id': user['_id']},
+            {'$set': {'subscribed': True}}
+        )
+
+
+def unsubscribe_user(db, user):
+    db.users.update_one(
+        {'_id': user['_id']},
+        {'$set': {'subscribed': False}}
+    )
+
+
+def get_subscribed(db):
+    return db.users.find({"subscribed": True})

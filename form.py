@@ -20,9 +20,12 @@ def form_name(update, context):
     else:
         context.user_data['form'] = {'name': user_name}
         reply_keyboard = [['1', '2', '3', '4', '5']]
-        update.message.reply_text('Please rate our bot on a scale from 1 (very bad) to 5 (very good)',
-                                  reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
-                                  )
+        update.message.reply_text(
+            'Please rate our bot on a scale '
+            'from 1 (very bad) to 5 (very good)',
+            reply_markup=ReplyKeyboardMarkup(reply_keyboard,
+                                             one_time_keyboard=True)
+        )
         return 'rating'
 
 
@@ -34,7 +37,8 @@ def form_rating(update, context):
 
 def form_comment(update, context):
     context.user_data['form']['comment'] = update.message.text
-    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    user = get_or_create_user(
+        db, update.effective_user, update.message.chat.id)
     save_form(db, user['user_id'], context.user_data['form'])
     user_text = form_format(context.user_data['form'])
     update.message.reply_text(user_text, reply_markup=main_keyboard(),
@@ -43,7 +47,8 @@ def form_comment(update, context):
 
 
 def form_skip(update, context):
-    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
+    user = get_or_create_user(
+        db, update.effective_user, update.message.chat.id)
     save_form(db, user['user_id'], context.user_data['form'])
     user_text = form_format(context.user_data['form'])
     update.message.reply_text(user_text, reply_markup=main_keyboard(),

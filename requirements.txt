@@ -6,10 +6,14 @@ clarifai-grpc==8.0.0
 dnspython==2.2.1
 emoji==1.7.0
 ephem==4.1.3
+flake8==4.0.1
 googleapis-common-protos==1.56.2
 grpcio==1.46.3
 idna==3.3
+mccabe==0.6.1
 protobuf==3.20.1
+pycodestyle==2.8.0
+pyflakes==2.4.0
 pymongo==4.1.1
 PySocks==1.7.1
 python-telegram-bot==13.12
