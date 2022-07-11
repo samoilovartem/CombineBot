@@ -16,6 +16,10 @@ CombineBot is a bot for Telegram that I use for learning purposes. Here I add as
 - **Bot`s rating form** _(you can tell me if you like it and leave a review)_
 - **Picture`s uploading tool** _(the bot can accept and save pictures that you sent)_
 - **Object`s recognition** _(the bot can tell what objects are in a picture you sent)_
+- **Subscribe and unsubscribe functionality** _(does nothing except changing "subscribed" status in Mongo to True or False)_
+- **Alarm** _(can be useful sometimes to count time)_
+- **Exact time notification** _(if ever you forget what time is it now this little bot will remind you about it every Monday, Wednesday and Friday)_
+- **Rating system for bot`s pictures of cats** _(you just rate a picture and bot will show you current rating of it)_
 - **To be continued...**
 
 
@@ -31,5 +35,7 @@ API_KEY = 'Your telegram bot API key'
 USER_EMOJI = [':smiley_cat:', ':smiling_imp:', ':panda_face:', ':dog:']
 WEATHER_KEY = 'Your weather service api key'
 CLARIFAI_API_KEY = 'Your clarifai API key'
+MONGO_URI = 'Your Mongo DB URI'
+MONGO_DB = 'Your DB name'
 ```
 6. Start the bot: `python bot.py`

@@ -1,7 +1,11 @@
 import requests
 import settings
+
+from emoji import emojize
 from random import randint
-from telegram import ReplyKeyboardMarkup, KeyboardButton
+
+from telegram import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
+
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
@@ -15,6 +19,17 @@ def main_keyboard():
             ['Fill out the form'],
         ]
     )
+
+
+def cat_rating_inline_keyboard(image_name):
+    callback_text = f'rating|{image_name}|'
+    keyboard = [
+        [
+            InlineKeyboardButton(emojize(':thumbs_up:'), callback_data=callback_text + '1'),
+            InlineKeyboardButton(emojize(':thumbs_down:'), callback_data=callback_text + '-1')
+        ]
+    ]
+    return InlineKeyboardMarkup(keyboard)
 
 
 def play_random_numbers(user_number):

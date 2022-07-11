@@ -2,8 +2,9 @@ import ephem
 import datetime
 from glob import glob
 from utils import main_keyboard, play_random_numbers, get_weather_by_city, \
-     get_object
-from db import db, get_or_create_user, subscribe_user, unsubscribe_user
+     get_object, cat_rating_inline_keyboard
+from db import db, get_or_create_user, subscribe_user, unsubscribe_user, save_cate_image_vote, \
+    find_if_user_voted, get_image_rating
 import os
 from telegram import ParseMode
 from random import choice
@@ -47,13 +48,21 @@ def guess_number(update, context):
 
 
 def send_cat_picture(update, context):
-    get_or_create_user(db, update.effective_user, update.message.chat.id)
+    user = get_or_create_user(db, update.effective_user, update.message.chat.id)
     cat_photo_list = glob('images/cat_*.jp*g')
     cat_photo_filename = choice(cat_photo_list)
     chat_id = update.effective_chat.id
+    if find_if_user_voted(db, cat_photo_filename, user['user_id']):
+        rating = get_image_rating(db, cat_photo_filename)
+        keyboard = None
+        caption = f'This picture`s rating is {rating}'
+    else:
+        keyboard = cat_rating_inline_keyboard(cat_photo_filename)
+        caption = None
     context.bot.send_photo(chat_id=chat_id,
                            photo=open(cat_photo_filename, 'rb'),
-                           reply_markup=main_keyboard())
+                           reply_markup=keyboard,
+                           caption=caption)
 
 
 def get_weather(update, context):
@@ -188,6 +197,17 @@ def set_alarm(update, context):
         update.message.reply_text(
             'Enter amount of seconds after the command.\n'
             'Example: /alarm 100')
+
+
+def rate_cate_picture(update, context):
+    update.callback_query.answer()
+    callback_type, image_name, vote = update.callback_query.data.split('|')
+    vote = int(vote)
+    user = get_or_create_user(db, update.effective_user,
+                              update.effective_chat.id)
+    save_cate_image_vote(db, user, image_name, vote)
+    rating = get_image_rating(db, image_name)
+    update.callback_query.edit_message_caption(caption=f'Picture`s rating is {rating}')
 
 
 def get_city(update, context):
