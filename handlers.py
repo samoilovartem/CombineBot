@@ -1,7 +1,7 @@
 import ephem
 import datetime
 from glob import glob
-from utils import main_keyboard, play_random_numbers, get_weather_by_city, \
+from utils import main_keyboard, play_random_numbers, get_bot_number, get_weather_by_city, \
      get_object, cat_rating_inline_keyboard
 from db import db, get_or_create_user, subscribe_user, unsubscribe_user, save_cate_image_vote, \
     find_if_user_voted, get_image_rating
@@ -36,7 +36,8 @@ def guess_number(update, context):
     if context.args:
         try:
             user_number = int(context.args[0])
-            message = play_random_numbers(user_number)
+            bot_number = get_bot_number(user_number)
+            message = play_random_numbers(user_number, bot_number)
         except (TypeError, ValueError):
             message = 'Enter a whole number please'
     else:

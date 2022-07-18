@@ -1,0 +1,56 @@
+[{
+  "_id": {
+    "$oid": "62cbc4c9d91cdc6dd38fa84c"
+  },
+  "image_name": "images/cat_1.jpg",
+  "votes": [
+    {
+      "user_id": 7028155,
+      "vote": 1
+    }
+  ]
+},{
+  "_id": {
+    "$oid": "62cbece3bed4d1d95a76bdee"
+  },
+  "image_name": "images/cat_5.jpg",
+  "votes": [
+    {
+      "user_id": 7028155,
+      "vote": 1
+    }
+  ]
+},{
+  "_id": {
+    "$oid": "62cbf16bfeaf2146c5e0d41a"
+  },
+  "image_name": "images/cat_4.jpg",
+  "votes": [
+    {
+      "user_id": 7028155,
+      "vote": 1
+    }
+  ]
+},{
+  "_id": {
+    "$oid": "62cbf209feaf2146c5e0d41b"
+  },
+  "image_name": "images/cat_2.jpg",
+  "votes": [
+    {
+      "user_id": 7028155,
+      "vote": 1
+    }
+  ]
+},{
+  "_id": {
+    "$oid": "62cbf5840aed6acbf20dc69a"
+  },
+  "image_name": "images/cat_3.jpg",
+  "votes": [
+    {
+      "user_id": 7028155,
+      "vote": 1
+    }
+  ]
+}]

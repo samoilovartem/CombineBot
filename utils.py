@@ -32,8 +32,11 @@ def cat_rating_inline_keyboard(image_name):
     return InlineKeyboardMarkup(keyboard)
 
 
-def play_random_numbers(user_number):
-    bot_number = randint(user_number - 10, user_number + 10)
+def get_bot_number(user_number):
+    return randint(user_number - 10, user_number + 10)
+
+
+def play_random_numbers(user_number, bot_number):
     if user_number > bot_number:
         message = f'Your number is {user_number}, ' \
                   f'mine is {bot_number}, you won!'
@@ -42,7 +45,7 @@ def play_random_numbers(user_number):
                   f'mine is {bot_number}, that`s a draw!'
     else:
         message = f'Your number is {user_number}, ' \
-                  f'mine is {bot_number}, You lost!'
+                  f'mine is {bot_number}, you lost!'
     return message
 
 

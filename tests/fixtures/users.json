@@ -1,0 +1,44 @@
+[{
+  "_id": {
+    "$oid": "62a47a52d90f59c0316012f5"
+  },
+  "user_id": 7028155,
+  "first_name": "Artem",
+  "last_name": "Samoilov",
+  "username": "samoylovartem",
+  "chat_id": 7028155,
+  "emoji": "🐼",
+  "form": [
+    {
+      "name": "Artem Samoilov",
+      "rating": 5,
+      "comment": "Good bot!",
+      "created": {
+        "$date": {
+          "$numberLong": "1654977430486"
+        }
+      }
+    },
+    {
+      "name": "Artem Samoilov",
+      "rating": 4,
+      "comment": "Fine bot 🤖",
+      "created": {
+        "$date": {
+          "$numberLong": "1654977808111"
+        }
+      }
+    }
+  ],
+  "subscribed": true
+},{
+  "_id": {
+    "$oid": "62cbbaa08bec202bf4e4f1d1"
+  },
+  "user_id": 1682584215,
+  "first_name": "Rachel",
+  "last_name": null,
+  "username": "itsrachol",
+  "chat_id": 1682584215,
+  "emoji": "🐶"
+}]
